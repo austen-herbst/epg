@@ -23,6 +23,9 @@ RUN SKIP_POSTINSTALL=1 npm install
 # Copy the rest of the source
 COPY . .
 
+# Fetch static data used by the app at runtime
+RUN npm run api:load
+
 EXPOSE 3000
 CMD [ "pm2-runtime", "pm2.config.js" ]
 
