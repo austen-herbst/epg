@@ -2,19 +2,16 @@ version: "3.9"
 
 services:
   epg:
-    # Pull the image published from GitHub Actions to Docker Hub
-    image: austenherbst/epg:latest
-    # Or build locally on Synology instead of pulling:
-    # build:
-    #   context: ../../
-    #   dockerfile: Dockerfile
+    build:
+      context: ../../
+      dockerfile: Dockerfile.local
     container_name: epg
     environment:
       - CRON_SCHEDULE=0 1 * * *
       - MAX_CONNECTIONS=1
       - GZIP=false
       - CURL=false
-      - DAYS=14
+      - DAYS=3
       - TIMEOUT=20000
       - DELAY=5000
       - RETRIES=10
