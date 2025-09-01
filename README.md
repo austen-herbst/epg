@@ -174,20 +174,7 @@ or
 http://<your_local_ip_address>:3000/guide.xml
 ```
 
-### CI: Publish to Docker Hub
-
-This repo includes a GitHub Actions workflow to build and publish a multi-arch Docker image to Docker Hub.
-
-- Configure repository Secrets:
-  - `DOCKERHUB_USERNAME`: your Docker Hub username
-  - `DOCKERHUB_TOKEN`: a [Docker Hub access token](https://hub.docker.com/settings/security)
-- (Optional) set repository Variable:
-  - `DOCKERHUB_REPO` (default: `austenherbst/epg`)
-
-The workflow builds from `Dockerfile.local` to capture the exact commit and pushes:
-- `latest` on `master` branch
-- the tag name on `v*` tags
-- a `sha` tag for traceability
+<!-- CI publishing details removed -->
 
 ### Environment Variables
 
