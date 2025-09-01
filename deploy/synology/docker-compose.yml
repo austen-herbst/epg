@@ -11,7 +11,7 @@ services:
       - MAX_CONNECTIONS=1
       - GZIP=false
       - CURL=false
-      - DAYS=3
+      - DAYS=14
       - TIMEOUT=20000
       - DELAY=5000
       - RETRIES=10
