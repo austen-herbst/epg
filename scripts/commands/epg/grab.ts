@@ -79,6 +79,21 @@ export interface GrabOptions {
 
 const options: GrabOptions = program.opts()
 
+// Commander .env() on boolean flags treats presence as truthy.
+// Respect explicit false-y strings from environment (e.g. CURL=false).
+function envBoolean(value: any, fallback: boolean): boolean {
+  if (value === undefined || value === null) return fallback
+  const s = String(value).trim().toLowerCase()
+  if (s === '') return fallback
+  if (s === '0' || s === 'false' || s === 'no' || s === 'off') return false
+  if (s === '1' || s === 'true' || s === 'yes' || s === 'on') return true
+  return fallback
+}
+
+// Enforce explicit false when provided via env
+options.curl = envBoolean(process.env.CURL, options.curl)
+options.gzip = envBoolean(process.env.GZIP, options.gzip)
+
 async function main() {
   if (!options.site && !options.channels)
     throw new Error('One of the arguments must be presented: `--site` or `--channels`')
