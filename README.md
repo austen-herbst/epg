@@ -64,6 +64,8 @@ Options:
   -x, --proxy <url>             Use the specified proxy (example: "socks5://username:password@127.0.0.1:1234")
   --days <days>                 Number of days for which the program will be loaded (defaults to the value from the site config)
   --maxConnections <number>     Number of concurrent requests (default: 1)
+  --retries <number>            Number of retry attempts on transient errors (default: 3)
+  --retryBaseDelay <milliseconds> Base delay for exponential backoff between retries in ms (default: 2000)
   --gzip                        Specifies whether or not to create a compressed version of the guide (default: false)
   --curl                        Display each request as CURL (default: false)
 ```
@@ -172,6 +174,21 @@ or
 http://<your_local_ip_address>:3000/guide.xml
 ```
 
+### CI: Publish to Docker Hub
+
+This repo includes a GitHub Actions workflow to build and publish a multi-arch Docker image to Docker Hub.
+
+- Configure repository Secrets:
+  - `DOCKERHUB_USERNAME`: your Docker Hub username
+  - `DOCKERHUB_TOKEN`: a [Docker Hub access token](https://hub.docker.com/settings/security)
+- (Optional) set repository Variable:
+  - `DOCKERHUB_REPO` (default: `austenherbst/epg`)
+
+The workflow builds from `Dockerfile.local` to capture the exact commit and pushes:
+- `latest` on `master` branch
+- the tag name on `v*` tags
+- a `sha` tag for traceability
+
 ### Environment Variables
 
 To fine-tune the execution, you can pass environment variables to the container as follows:
@@ -188,6 +205,8 @@ docker run \
 -e DAYS=14 \
 -e TIMEOUT=5 \
 -e DELAY=2 \
+-e RETRIES=3 \
+-e RETRY_BASE_DELAY_MS=2000 \
 iptv-org/epg
 ```
 
@@ -201,6 +220,8 @@ iptv-org/epg
 | DAYS            | Number of days for which the guide will be loaded (defaults to the value from the site config)                     |
 | TIMEOUT         | Timeout for each request in milliseconds (default: 0)                                                              |
 | DELAY           | Delay between request in milliseconds (default: 0)                                                                 |
+| RETRIES         | Number of retry attempts on transient errors (default: 3)                                                          |
+| RETRY_BASE_DELAY_MS | Base delay for exponential backoff between retries in ms (default: 2000)                                       |
 | RUN_AT_STARTUP  | Run grab on container startup (default: true)                                                                 |
 
 ## Database

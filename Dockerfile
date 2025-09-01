@@ -1,5 +1,5 @@
 FROM node:22-alpine
-ARG GIT_REPO=https://github.com/iptv-org/epg.git
+ARG GIT_REPO=https://github.com/austen-herbst/epg.git
 ARG GIT_BRANCH=master
 ARG WORKDIR=/epg
 ENV CRON_SCHEDULE="0 0 * * *"
@@ -14,7 +14,7 @@ RUN apk update \
     && npm install pm2 -g \
     && mkdir $(echo "${WORKDIR}") -p \
     && cd $WORKDIR \
-    && git clone --depth 1 -b $(echo "${GIT_BRANCH} ${GIT_REPO}") . \
+    && git clone --depth 1 -b "${GIT_BRANCH}" "${GIT_REPO}" . \
     && npm install \
     && mkdir /public
 RUN apk del git curl \

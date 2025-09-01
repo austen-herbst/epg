@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  epg:
+    # Pull the image published from GitHub Actions to Docker Hub
+    image: austenherbst/epg:latest
+    # Or build locally on Synology instead of pulling:
+    # build:
+    #   context: ../../
+    #   dockerfile: Dockerfile
+    container_name: epg
+    environment:
+      - CRON_SCHEDULE=0 1 * * *
+      - MAX_CONNECTIONS=1
+      - GZIP=false
+      - CURL=false
+      - DAYS=14
+      - TIMEOUT=20000
+      - DELAY=5000
+      - RETRIES=10
+      - RETRY_BASE_DELAY_MS=2000
+      - RUN_AT_STARTUP=true
+    ports:
+      - "3000:3000"
+    volumes:
+      # Persist generated guide.xml outside container
+      - /volume1/docker/epg/public:/public
+      # Provide your channels.xml if not using SITE
+      # Replace with your real path to channels.xml on the NAS
+      - /volume1/docker/epg/config/channels.xml:/epg/channels.xml:ro
+    restart: unless-stopped

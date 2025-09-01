@@ -1,0 +1,28 @@
+FROM node:22-alpine
+
+ARG WORKDIR=/epg
+ENV CRON_SCHEDULE="0 0 * * *"
+ENV GZIP=false
+ENV MAX_CONNECTIONS=1
+ENV DAYS=
+ENV RUN_AT_STARTUP=true
+
+RUN apk update \
+    && apk upgrade --available \
+    && apk add tzdata bash \
+    && npm install -g npm@latest \
+    && npm install pm2 -g \
+    && mkdir -p ${WORKDIR} /public
+
+WORKDIR ${WORKDIR}
+
+# Install dependencies first for better layer caching
+COPY package*.json ./
+RUN npm install
+
+# Copy the rest of the source
+COPY . .
+
+EXPOSE 3000
+CMD [ "pm2-runtime", "pm2.config.js" ]
+

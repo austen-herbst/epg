@@ -41,6 +41,19 @@ program
       .env('MAX_CONNECTIONS')
   )
   .addOption(
+    new Option('--retries <number>', 'Number of retry attempts on transient errors')
+      .default(3)
+      .env('RETRIES')
+  )
+  .addOption(
+    new Option(
+      '--retryBaseDelay <milliseconds>',
+      'Base delay in ms before retry, grows exponentially'
+    )
+      .default(2000)
+      .env('RETRY_BASE_DELAY_MS')
+  )
+  .addOption(
     new Option('--gzip', 'Create a compressed version of the guide as well')
       .default(false)
       .env('GZIP')
@@ -55,6 +68,8 @@ export interface GrabOptions {
   gzip: boolean
   curl: boolean
   maxConnections: number
+  retries: number
+  retryBaseDelay: number
   timeout?: string
   delay?: string
   lang?: string
