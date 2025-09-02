@@ -174,7 +174,19 @@ or
 http://<your_local_ip_address>:3000/guide.xml
 ```
 
-<!-- CI publishing details removed -->
+### Docker Compose (local build)
+
+This repo includes a Dockerfile optimized for local builds (`Dockerfile.local`). It installs dependencies without running `postinstall`, copies the full source, and then downloads the static datasets needed at runtime. This avoids stale layers and ensures the image contains all required files.
+
+Quick start using Compose:
+
+```sh
+docker compose -f deploy/synology/docker-compose.yml build --no-cache --pull
+docker compose -f deploy/synology/docker-compose.yml up -d --force-recreate
+```
+
+The service exposes port `3000` and serves the generated guide from `/public/guide.xml`. `RUN_AT_STARTUP=true` triggers a run immediately in addition to the scheduled cron.
+
 
 ### Environment Variables
 
@@ -210,6 +222,28 @@ iptv-org/epg
 | RETRIES         | Number of retry attempts on transient errors (default: 3)                                                          |
 | RETRY_BASE_DELAY_MS | Base delay for exponential backoff between retries in ms (default: 2000)                                       |
 | RUN_AT_STARTUP  | Run grab on container startup (default: true)                                                                 |
+
+
+Boolean parsing note: boolean envs accept `true/false`, `1/0`, `yes/no`, or `on/off`. For example, setting `CURL=false` will correctly suppress curl output in logs.
+
+### Synology NAS
+
+For Synology (Docker/Container Manager), a sample Compose file is provided at `deploy/synology/docker-compose.yml`. It builds from local sources using `Dockerfile.local` and sets common environment variables.
+
+- Update the volume paths to match your NAS:
+  - `/volume1/docker/epg/public:/public` to persist generated `guide.xml`.
+  - `/volume1/docker/epg/config/channels.xml:/epg/channels.xml:ro` to provide your channels.
+- Adjust the schedule and options via the `environment:` block (e.g., `DAYS=14`, `RETRIES`, `RETRY_BASE_DELAY_MS`).
+- Build and run:
+
+```sh
+docker compose -f deploy/synology/docker-compose.yml build --no-cache --pull
+docker compose -f deploy/synology/docker-compose.yml up -d --force-recreate
+```
+
+Notes:
+- The image runs a small HTTP server on port `3000` to serve `/public/guide.xml`.
+- On first build, static data is fetched as part of the image build so the container can generate guides without extra initialization steps.
 
 ## Database
 
