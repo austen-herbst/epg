@@ -17,6 +17,7 @@ services:
       - RETRIES=10
       - RETRY_BASE_DELAY_MS=2000
       - RUN_AT_STARTUP=true
+      - TZ=America/Chicago
     ports:
       - "3000:3000"
     volumes:
