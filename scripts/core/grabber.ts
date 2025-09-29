@@ -138,6 +138,16 @@ export class Grabber {
           throw callbackError
         }
 
+        if (Array.isArray(result) && result.length === 0) {
+          if (attempt < attempts) {
+            const noProgramsError: Error & { code?: string } = new Error('No programs returned')
+            noProgramsError.code = 'NO_PROGRAMS'
+            throw noProgramsError
+          }
+
+          this.logger.info('    WARN: received 0 programs; no more retries available')
+        }
+
         return result
       } catch (err: any) {
         lastError = err
@@ -176,6 +186,7 @@ export class Grabber {
       'ESOCKETTIMEDOUT'
     ])
 
+    if (code === 'NO_PROGRAMS') return true
     if (typeof status === 'number' && (status >= 500 || status === 429)) return true
     if (code && netCodes.has(String(code))) return true
     if (message.includes('timeout') || message.includes('network error')) return true
