@@ -23,10 +23,10 @@ module.exports = {
   },
   parser: function ({ content }) {
     let programs = []
-    const items = parseItems(content)
+    const { items, timezone } = parseContent(content)
     for (let item of items) {
       const $item = cheerio.load(item)
-      const start = parseStart($item)
+      const start = parseStart($item, timezone)
       const duration = parseDuration($item)
       const stop = start.add(duration, 'm')
       let title = parseTitle($item)
@@ -159,10 +159,11 @@ function parseRating($item) {
     : null
 }
 
-function parseStart($item) {
+function parseStart($item, timezone) {
   const time = $item('*').data('st')
+  const tz = timezone || 'America/New_York'
 
-  return dayjs.tz(time, 'YYYY-MM-DD HH:mm:ss', 'America/New_York')
+  return dayjs.tz(time, 'YYYY-MM-DD HH:mm:ss', tz)
 }
 
 function parseDuration($item) {
@@ -171,9 +172,28 @@ function parseDuration($item) {
   return parseInt(duration)
 }
 
-function parseItems(content) {
-  if (!content) return []
+function parseContent(content) {
+  if (!content) return { items: [], timezone: null }
   const $ = cheerio.load(content)
+  const timezone = parseTimezone($)
 
-  return $('.station-listings .list-group-item').toArray()
+  return {
+    items: $('.station-listings .list-group-item').toArray(),
+    timezone
+  }
+}
+
+function parseTimezone($) {
+  if (!$) return null
+
+  const selectedOption = $('#timezone_selector option[selected]').attr('value')
+  if (selectedOption) return selectedOption.trim()
+
+  const control = $('#timezone_selector')
+  if (control.length) {
+    const value = control.val()
+    if (value) return String(value).trim()
+  }
+
+  return null
 }

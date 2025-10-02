@@ -19,10 +19,8 @@ it('can generate valid url', () => {
   )
 })
 
-it('can generate valid request headers', () => {
-  expect(request.headers).toMatchObject({
-    Cookie: 'cisession=e49ff13191d6875887193cae9e324b44ef85768d;'
-  })
+it('omits request headers by default', () => {
+  expect(request.headers).toBeUndefined()
 })
 
 it('can parse response', () => {
@@ -73,4 +71,17 @@ it('can parse response', () => {
 it('can handle empty guide', () => {
   const result = parser({ content: '' })
   expect(result).toMatchObject([])
+})
+
+it('uses station timezone from selector when provided', () => {
+  const content = fs.readFileSync(
+    path.resolve(__dirname, '__data__/content-central.html'),
+    'utf8'
+  )
+
+  const [program] = parser({ content })
+
+  expect(program.start.toJSON()).toBe('2022-10-04T11:00:00.000Z')
+  expect(program.stop.toJSON()).toBe('2022-10-04T12:00:00.000Z')
+  expect(program.title).toBe('Central Show')
 })
