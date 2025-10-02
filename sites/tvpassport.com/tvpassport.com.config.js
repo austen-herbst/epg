@@ -36,7 +36,10 @@ module.exports = {
         subtitle = null
       }
 
-      programs.push({
+      const { season, episode } = parseEpisodeInfo($item)
+      const isNew = parseIsNew($item)
+
+      const program = {
         title,
         subtitle,
         description: parseDescription($item),
@@ -49,7 +52,13 @@ module.exports = {
         year: parseYear($item),
         start,
         stop
-      })
+      }
+
+      if (season !== null) program.season = season
+      if (episode !== null) program.episode = episode
+      if (isNew) program.new = true
+
+      programs.push(program)
     }
 
     return programs
@@ -196,4 +205,59 @@ function parseTimezone($) {
   }
 
   return null
+}
+
+function parseEpisodeInfo($item) {
+  const element = $item('*')
+  const rawValue = element.data('episodenumber')
+  const subtitle = element.data('episodetitle')
+
+  let season = null
+  let episode = null
+
+  const digits = typeof rawValue === 'number' || typeof rawValue === 'string'
+    ? String(rawValue).replace(/[^0-9]/g, '')
+    : ''
+
+  if (digits.length >= 3) {
+    const candidates = []
+    for (let i = 1; i < digits.length; i++) {
+      const seasonPart = digits.slice(0, i)
+      const episodePart = digits.slice(i)
+      const seasonValue = parseInt(seasonPart, 10)
+      const episodeValue = parseInt(episodePart, 10)
+      if (isNaN(seasonValue) || isNaN(episodeValue)) continue
+      if (seasonValue < 1 || seasonValue > 100) continue
+      if (episodeValue < 0 || episodeValue > 200) continue
+      candidates.push({ season: seasonValue, episode: episodeValue })
+    }
+
+    if (candidates.length) {
+      candidates.sort((a, b) => {
+        if (a.season === b.season) return a.episode - b.episode
+        return a.season - b.season
+      })
+      season = candidates[0].season
+      episode = candidates[0].episode
+    }
+  }
+
+  if ((season === null || episode === null) && subtitle) {
+    const match = String(subtitle).match(/S(?:eason)?\s*(\d+)\s*[^\dA-Za-z]+\s*E(?:p(?:isode)?)?\.?\s*(\d+)/i)
+    if (match) {
+      season = parseInt(match[1], 10)
+      episode = parseInt(match[2], 10)
+    }
+  }
+
+  return { season, episode }
+}
+
+function parseIsNew($item) {
+  const value = $item('*').data('new_show')
+  if (value === undefined || value === null) return false
+  const str = String(value).trim().toLowerCase()
+  if (!str) return false
+  if (['0', 'false', 'no', 'n'].includes(str)) return false
+  return true
 }

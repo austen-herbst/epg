@@ -84,4 +84,8 @@ it('uses station timezone from selector when provided', () => {
   expect(program.start.toJSON()).toBe('2022-10-04T11:00:00.000Z')
   expect(program.stop.toJSON()).toBe('2022-10-04T12:00:00.000Z')
   expect(program.title).toBe('Central Show')
+  expect(program.subtitle).toBe('Episode One')
+  expect(program.season).toBe(24)
+  expect(program.episode).toBe(2)
+  expect(program.new).toBe(true)
 })
