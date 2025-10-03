@@ -30,10 +30,10 @@ module.exports = {
       const duration = parseDuration($item)
       const stop = start.add(duration, 'm')
       let title = parseTitle($item)
-      let subtitle = parseSubTitle($item)
+      let subTitle = parseSubTitle($item)
       if (title === 'Movie') {
-        title = subtitle
-        subtitle = null
+        title = subTitle
+        subTitle = null
       }
 
       const { season, episode } = parseEpisodeInfo($item)
@@ -41,7 +41,6 @@ module.exports = {
 
       const program = {
         title,
-        subtitle,
         description: parseDescription($item),
         image: parseImage($item),
         category: parseCategory($item),
@@ -54,6 +53,7 @@ module.exports = {
         stop
       }
 
+      if (subTitle) program.subTitle = subTitle
       if (season !== null) program.season = season
       if (episode !== null) program.episode = episode
       if (isNew) program.new = true
